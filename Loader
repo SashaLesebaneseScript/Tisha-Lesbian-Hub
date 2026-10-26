@@ -1,1 +1,51 @@
+local baseUrl = "https://raw.githubusercontent.com/SashaLesebaneseScript/Tisha-Lesbian-Hub/refs/heads/main/"
 
+local urls = {
+    baseUrl .. "Part%201",
+    baseUrl .. "Part%202",
+    baseUrl .. "Part%203",
+    baseUrl .. "Part%204"
+}
+
+local finalScript = ""
+local StarterGui = game:GetService("StarterGui")
+
+StarterGui:SetCore("SendNotification", {
+    Title = "Tisha Hub V9",
+    Text = "Loading scripts from GitHub...",
+    Duration = 3
+})
+
+for i, url in ipairs(urls) do
+    local success, response = pcall(function()
+        return game:HttpGet(url)
+    end)
+    
+    if success then
+        finalScript = finalScript .. response .. "\n"
+    else
+        StarterGui:SetCore("SendNotification", {
+            Title = "Critical Error",
+            Text = "Failed to load Part " .. i,
+            Duration = 5
+        })
+        return
+    end
+end
+
+local func, err = loadstring(finalScript)
+if func then
+    func()
+    StarterGui:SetCore("SendNotification", {
+        Title = "Success",
+        Text = "Tisha Hub loaded successfully.",
+        Duration = 3
+    })
+else
+    StarterGui:SetCore("SendNotification", {
+        Title = "Syntax Error",
+        Text = "Check console (F9) for details.",
+        Duration = 5
+    })
+    warn("Failed to compile script: " .. tostring(err))
+end
