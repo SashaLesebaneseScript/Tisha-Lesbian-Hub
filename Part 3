@@ -1,20 +1,36 @@
 RunService.RenderStepped:Connect(function()
     if Toggles.FullBright then
-        Lighting.Ambient = Color3.new(1, 1, 1); Lighting.OutdoorAmbient = Color3.new(1, 1, 1); Lighting.FogEnd = 100000; Lighting.Brightness = 2
+        Lighting.Ambient = Color3.new(1, 1, 1)
+        Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+        Lighting.FogEnd = 100000
+        Lighting.Brightness = 2
     elseif Toggles.AltFullBright then
-        Lighting.Ambient = Color3.fromRGB(150, 150, 150); Lighting.OutdoorAmbient = Color3.fromRGB(150, 150, 150); Lighting.Brightness = 1.5; Lighting.ClockTime = 12
+        Lighting.Ambient = Color3.fromRGB(150, 150, 150)
+        Lighting.OutdoorAmbient = Color3.fromRGB(150, 150, 150)
+        Lighting.Brightness = 1.5
+        Lighting.ClockTime = 12
     else
-        Lighting.Ambient = OriginalLighting.Ambient; Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient; Lighting.FogEnd = OriginalLighting.FogEnd; Lighting.Brightness = OriginalLighting.Brightness; Lighting.ClockTime = OriginalLighting.ClockTime
+        Lighting.Ambient = OriginalLighting.Ambient
+        Lighting.OutdoorAmbient = OriginalLighting.OutdoorAmbient
+        Lighting.FogEnd = OriginalLighting.FogEnd
+        Lighting.Brightness = OriginalLighting.Brightness
+        Lighting.ClockTime = OriginalLighting.ClockTime
     end
 
     if Toggles.AutoElevator then
         local info = workspace:FindFirstChild("Info")
         local panic = info and info:FindFirstChild("Panic")
-        if panic and panic.Value and tick() - lastAutoTp > 1 then TeleportToElevator(); lastAutoTp = tick() end
+        if panic and panic.Value and tick() - lastAutoTp > 1 then 
+            TeleportToElevator()
+            lastAutoTp = tick() 
+        end
     end
 
     local currentRoom = workspace:FindFirstChild("CurrentRoom")
-    if currentRoom ~= LastRoom then ClearAll(); LastRoom = currentRoom end
+    if currentRoom ~= LastRoom then 
+        ClearAll()
+        LastRoom = currentRoom 
+    end
 
     if not Toggles.EspPlayers then ClearHighlights(Highlights.Players) end
     if not Toggles.Nametag and not Toggles.EspItems then ClearDrawings(Drawings.Players) end
@@ -32,14 +48,27 @@ RunService.RenderStepped:Connect(function()
                 local root = player.Character.HumanoidRootPart
                 local pos, onScreen = Camera:WorldToViewportPoint(root.Position)
                 local dist = (Camera.CFrame.Position - root.Position).Magnitude
-                if Toggles.EspPlayers and not Highlights.Players[player] then Highlights.Players[player] = CreateHighlight(player.Character, Color3.fromRGB(0, 255, 255)) end
+                
+                if Toggles.EspPlayers and not Highlights.Players[player] then 
+                    Highlights.Players[player] = CreateHighlight(player.Character, Color3.fromRGB(0, 255, 255)) 
+                end
+                
                 if not Drawings.Players[player] then Drawings.Players[player] = CreateText() end
                 local draw = Drawings.Players[player]
+                
                 if onScreen and dist < 1000 then
                     if Toggles.Nametag then
-                        draw.Text = player.Name; draw.Size = math.clamp(1000 / dist, 12, 18); draw.Position = Vector2.new(pos.X, pos.Y - 30); draw.Color = Color3.fromRGB(255, 255, 255); draw.Visible = true
-                    else draw.Visible = false end
-                else draw.Visible = false end
+                        draw.Text = player.Name
+                        draw.Size = math.clamp(1000 / dist, 12, 18)
+                        draw.Position = Vector2.new(pos.X, pos.Y - 30)
+                        draw.Color = Color3.fromRGB(255, 255, 255)
+                        draw.Visible = true
+                    else 
+                        draw.Visible = false 
+                    end
+                else 
+                    draw.Visible = false 
+                end
             else
                 if Highlights.Players[player] then Highlights.Players[player]:Destroy(); Highlights.Players[player] = nil end
                 if Drawings.Players[player] then Drawings.Players[player]:Remove(); Drawings.Players[player] = nil end
@@ -55,15 +84,24 @@ RunService.RenderStepped:Connect(function()
                 if trinketsFolder then
                     for _, trinket in pairs(trinketsFolder:GetChildren()) do
                         if trinket:IsA("Model") or trinket:IsA("BasePart") then
-                            if not Highlights.Trinkets[trinket] then Highlights.Trinkets[trinket] = CreateHighlight(trinket, Color3.fromRGB(0, 255, 255)) end
+                            if not Highlights.Trinkets[trinket] then 
+                                Highlights.Trinkets[trinket] = CreateHighlight(trinket, Color3.fromRGB(0, 255, 255)) 
+                            end
+                            
                             local part = trinket:IsA("BasePart") and trinket or trinket:FindFirstChildWhichIsA("BasePart")
                             if part and part.Parent then
                                 local pos, onScreen = Camera:WorldToViewportPoint(part.Position + Vector3.new(0, part.Size.Y/2 + 1, 0))
                                 if not Drawings.Trinkets[trinket] then Drawings.Trinkets[trinket] = CreateText() end
                                 local draw = Drawings.Trinkets[trinket]
                                 if onScreen then
-                                    draw.Text = trinket.Name; draw.Size = 14; draw.Position = Vector2.new(pos.X, pos.Y); draw.Color = Color3.fromRGB(0, 255, 255); draw.Visible = true
-                                else draw.Visible = false end
+                                    draw.Text = trinket.Name
+                                    draw.Size = 14
+                                    draw.Position = Vector2.new(pos.X, pos.Y)
+                                    draw.Color = Color3.fromRGB(0, 255, 255)
+                                    draw.Visible = true
+                                else 
+                                    draw.Visible = false 
+                                end
                             end
                         end
                     end
@@ -85,8 +123,12 @@ RunService.RenderStepped:Connect(function()
                         local dist = (Camera.CFrame.Position - part.Position).Magnitude
                         local itemColor = GetItemColor(item.Name)
                         
-                        if Toggles.EspItems and not Highlights.Items[item] then Highlights.Items[item] = CreateHighlight(item, itemColor)
-                        elseif Toggles.EspItems and Highlights.Items[item] then Highlights.Items[item].FillColor = itemColor; Highlights.Items[item].OutlineColor = itemColor end
+                        if Toggles.EspItems and not Highlights.Items[item] then 
+                            Highlights.Items[item] = CreateHighlight(item, itemColor)
+                        elseif Toggles.EspItems and Highlights.Items[item] then 
+                            Highlights.Items[item].FillColor = itemColor
+                            Highlights.Items[item].OutlineColor = itemColor 
+                        end
 
                         if Toggles.EspDescription then
                             if not Drawings.Items[item] then Drawings.Items[item] = CreateText() end
@@ -100,8 +142,14 @@ RunService.RenderStepped:Connect(function()
                                     local mName = monsterObj and monsterObj.Value or "Unknown"
                                     finalText = "Twisted: " .. FormatName(mName)
                                 end
-                                draw.Text = finalText; draw.Color = itemColor; draw.Size = math.clamp(1000 / dist, 12, 18); draw.Position = Vector2.new(pos.X, pos.Y); draw.Visible = true
-                            else draw.Visible = false end
+                                draw.Text = finalText
+                                draw.Color = itemColor
+                                draw.Size = math.clamp(1000 / dist, 12, 18)
+                                draw.Position = Vector2.new(pos.X, pos.Y)
+                                draw.Visible = true
+                            else 
+                                draw.Visible = false 
+                            end
                         end
                     end
                 end
@@ -123,8 +171,12 @@ RunService.RenderStepped:Connect(function()
                         local fill, outline = GetTwistedColors(monster.Name)
                         
                         if Toggles.EspTwisteds then
-                            if not Highlights.Twisteds[monster] then Highlights.Twisteds[monster] = CreateHighlight(monster, fill, outline)
-                            else Highlights.Twisteds[monster].FillColor = fill; Highlights.Twisteds[monster].OutlineColor = outline end
+                            if not Highlights.Twisteds[monster] then 
+                                Highlights.Twisteds[monster] = CreateHighlight(monster, fill, outline)
+                            else 
+                                Highlights.Twisteds[monster].FillColor = fill
+                                Highlights.Twisteds[monster].OutlineColor = outline 
+                            end
                         end
 
                         if Toggles.EspNametagResearch then
@@ -145,8 +197,13 @@ RunService.RenderStepped:Connect(function()
                                 local isLethal = string.find(lowerName, "dandy") or string.find(lowerName, "dyle")
                                 local lethalText = isLethal and "LETHAL\n" or ""
                                 draw.Text = lethalText .. FormatName(monster.Name) .. "\nResearch: " .. tostring(math.floor(researchAmt))
-                                draw.Size = math.clamp(1000 / dist, 12, 20); draw.Position = Vector2.new(pos.X, pos.Y); draw.Color = fill; draw.Visible = true
-                            else draw.Visible = false end
+                                draw.Size = math.clamp(1000 / dist, 12, 20)
+                                draw.Position = Vector2.new(pos.X, pos.Y)
+                                draw.Color = fill
+                                draw.Visible = true
+                            else 
+                                draw.Visible = false 
+                            end
                         end
                     end
                 end
@@ -169,8 +226,14 @@ RunService.RenderStepped:Connect(function()
                         if not Drawings.Doors[door] then Drawings.Doors[door] = CreateText() end
                         local draw = Drawings.Doors[door]
                         if onScreen and dist < 1000 then
-                            draw.Text = "Halloween door"; draw.Size = math.clamp(1000 / dist, 12, 20); draw.Position = Vector2.new(pos.X, pos.Y); draw.Color = Color3.fromRGB(255, 165, 0); draw.Visible = true
-                        else draw.Visible = false end
+                            draw.Text = "Halloween door"
+                            draw.Size = math.clamp(1000 / dist, 12, 20)
+                            draw.Position = Vector2.new(pos.X, pos.Y)
+                            draw.Color = Color3.fromRGB(255, 165, 0)
+                            draw.Visible = true
+                        else 
+                            draw.Visible = false 
+                        end
                     end
                 end
             end
@@ -194,12 +257,16 @@ RunService.RenderStepped:Connect(function()
                         local dist = (Camera.CFrame.Position - part.Position).Magnitude
                         local genColor = GetGeneratorColor(gen)
                         
-                        if not Highlights.Generators[gen] then Highlights.Generators[gen] = CreateHighlight(gen, genColor)
-                        else Highlights.Generators[gen].FillColor = genColor; Highlights.Generators[gen].OutlineColor = genColor end
+                        if not Highlights.Generators[gen] then 
+                            Highlights.Generators[gen] = CreateHighlight(gen, genColor)
+                        else 
+                            Highlights.Generators[gen].FillColor = genColor
+                            Highlights.Generators[gen].OutlineColor = genColor 
+                        end
                         
                         if not Drawings.Generators[gen] then Drawings.Generators[gen] = CreateText() end
-                        
                         local draw = Drawings.Generators[gen]
+                        
                         if onScreen and dist < 1000 then
                             local genText = "Generator"
                             if gen:FindFirstChild("BrushaDebuffChamber", true) then genText = genText .. "\nBrusha debuff" end
@@ -210,8 +277,14 @@ RunService.RenderStepped:Connect(function()
                             local req = stats and stats:FindFirstChild("RequiredAmount")
                             if curr and req then genText = genText .. "\n" .. tostring(math.floor(curr.Value)) .. "/" .. tostring(math.floor(req.Value)) end
                             
-                            draw.Text = genText; draw.Size = math.clamp(1000 / dist, 12, 18); draw.Position = Vector2.new(pos.X, pos.Y); draw.Color = genColor; draw.Visible = true
-                        else draw.Visible = false end
+                            draw.Text = genText
+                            draw.Size = math.clamp(1000 / dist, 12, 18)
+                            draw.Position = Vector2.new(pos.X, pos.Y)
+                            draw.Color = genColor
+                            draw.Visible = true
+                        else 
+                            draw.Visible = false 
+                        end
                     else
                         if Highlights.Generators[gen] then Highlights.Generators[gen]:Destroy(); Highlights.Generators[gen] = nil end
                         if Drawings.Generators[gen] then Drawings.Generators[gen]:Remove(); Drawings.Generators[gen] = nil end
@@ -229,46 +302,43 @@ task.spawn(function()
         local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
         if playerGui then
             if Toggles.AutoBar then
-                local sg = playerGui:FindFirstChild("ScreenGui"); local menu = sg and sg:FindFirstChild("Menu"); local frame = menu and menu:FindFirstChild("SkillCheckFrame"); local cal = menu and menu:FindFirstChild("Calibrate")
+                local sg = playerGui:FindFirstChild("ScreenGui")
+                local menu = sg and sg:FindFirstChild("Menu")
+                local frame = menu and menu:FindFirstChild("SkillCheckFrame")
+                local cal = menu and menu:FindFirstChild("Calibrate")
+                
                 if frame and frame.Visible and cal then
-                    local marker = frame:FindFirstChild("Marker"); local gold = frame:FindFirstChild("GoldArea")
+                    local marker = frame:FindFirstChild("Marker")
+                    local gold = frame:FindFirstChild("GoldArea")
                     if marker and gold then
                         local mPos = marker.AbsolutePosition.X + (marker.AbsoluteSize.X / 2)
                         local gPos = gold.AbsolutePosition.X + (gold.AbsoluteSize.X / 2)
                         if math.abs(mPos - gPos) <= (gold.AbsoluteSize.X / 2) then
-                            if not barClicked then barClicked = true; cal:MouseButton1Click:Fire(); task.wait(0.5) end
+                            if not barClicked then 
+                                barClicked = true
+                                cal:MouseButton1Click:Fire()
+                                task.wait(0.5) 
+                            end
                         end
                     end
-                else barClicked = false end
+                else 
+                    barClicked = false 
+                end
             end
 
             if Toggles.AutoCircle then
-                local sg = playerGui:FindFirstChild("CircleSkillCheckGui"); local frame = sg and sg:FindFirstChild("SkillCheckFrame"); local mainSg = playerGui:FindFirstChild("ScreenGui"); local cal = mainSg and mainSg:FindFirstChild("Menu") and mainSg.Menu:FindFirstChild("Calibrate")
+                local sg = playerGui:FindFirstChild("CircleSkillCheckGui")
+                local frame = sg and sg:FindFirstChild("SkillCheckFrame")
+                local mainSg = playerGui:FindFirstChild("ScreenGui")
+                local cal = mainSg and mainSg:FindFirstChild("Menu") and mainSg.Menu:FindFirstChild("Calibrate")
+                
                 if frame and frame.Visible and cal then
                     local container = frame:FindFirstChild("Container")
                     if container then
-                        local shrinking = container:FindFirstChild("ShrinkingCircle"); local yellow = container:FindFirstChild("YellowCircle")
+                        local shrinking = container:FindFirstChild("ShrinkingCircle")
+                        local yellow = container:FindFirstChild("YellowCircle")
                         if shrinking and yellow then
                             local diff = shrinking.AbsoluteSize.X - yellow.AbsoluteSize.X
-                            if diff <= 10 and diff >= -10 then if not circleClicked then circleClicked = true; cal:MouseButton1Click:Fire(); task.wait(0.5) end end
-                        end
-                    end
-                else circleClicked = false end
-            end
-
-            if Toggles.AutoTreadmill then
-                local sg = playerGui:FindFirstChild("TreadmillTapSkillCheckGui"); local frame = sg and sg:FindFirstChild("TapSkillCheckFrame")
-                if frame and frame.Visible then
-                    local container = frame:FindFirstChild("Container"); local tapBtn = container and container:FindFirstChild("TapButton")
-                    if tapBtn and not treadmillActive then
-                        treadmillActive = true
-                        task.spawn(function()
-                            for i = 1, 8 do if not Toggles.AutoTreadmill then break end; tapBtn:MouseButton1Click:Fire(); task.wait(0.3) end
-                            task.wait(0.5); treadmillActive = false
-                        end)
-                    end
-                else treadmillActive = false end
-            end
-        end
-    end
-end)
+                            if diff <= 10 and diff >= -10 then 
+                                if not circleClicked then 
+                
