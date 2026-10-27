@@ -80,7 +80,7 @@ ToggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local function CreateButton(text, toggleKey, callback)
+function CreateButton(text, toggleKey, callback)
     local Btn = Instance.new("TextButton")
     Btn.Size = UDim2.new(1, -10, 0, 35)
     Btn.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
@@ -111,16 +111,10 @@ local function CreateButton(text, toggleKey, callback)
                 Btn.TextColor3 = Color3.fromRGB(200, 200, 200)
                 BtnStroke.Color = Color3.fromRGB(60, 60, 70)
             end
-            if callback then 
-                callback(Toggles[toggleKey]) 
-            end
+            if callback then callback(Toggles[toggleKey]) end
         end)
     else
-        Btn.MouseButton1Click:Connect(function() 
-            if callback then 
-                callback() 
-            end 
-        end)
+        Btn.MouseButton1Click:Connect(function() if callback then callback() end end)
     end
 end
 
@@ -140,27 +134,16 @@ CreateButton("Auto Bar Skillcheck", "AutoBar")
 CreateButton("Auto Treadmill", "AutoTreadmill")
 CreateButton("Auto tp to elevator", "AutoElevator")
 CreateButton("Auto Farm", "AutoFarm")
-
 CreateButton("Speed (30)", "Speed", function(state)
-    if not state and LocalPlayer.Character then
-        local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
-        if hum then 
-            hum.WalkSpeed = 16 
-        end
-    end
+    if not state and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then LocalPlayer.Character.Humanoid.WalkSpeed = 16 end
 end)
-
 CreateButton("Noclip", "Noclip", function(state)
     if not state and LocalPlayer.Character then
-        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do 
-            if v:IsA("BasePart") then 
-                v.CanCollide = true 
-            end 
-        end
+        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = true end end
     end
 end)
 
-local function TeleportToElevator()
+function TeleportToElevator()
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local currentRoom = workspace:FindFirstChild("CurrentRoom")
@@ -170,56 +153,23 @@ local function TeleportToElevator()
     local spawnZones = elevator and elevator:FindFirstChild("SpawnZones")
     if spawnZones then
         local targetPart = spawnZones:FindFirstChildWhichIsA("BasePart", true)
-        if targetPart then 
-            char:PivotTo(targetPart.CFrame + Vector3.new(0, 3, 0)) 
-        end
+        if targetPart then char:PivotTo(targetPart.CFrame + Vector3.new(0, 3, 0)) end
     end
 end
-
 CreateButton("Tp to elevator", nil, TeleportToElevator)
 
-local function ClearHighlights(tbl) 
-    for _, h in pairs(tbl) do 
-        if h then h:Destroy() end 
-    end
-    table.clear(tbl) 
-end
+function ClearHighlights(tbl) for _, h in pairs(tbl) do if h then h:Destroy() end end; table.clear(tbl) end
+function ClearDrawings(tbl) for _, d in pairs(tbl) do if type(d) == "table" then for _, v in pairs(d) do if v.Remove then v:Remove() end end elseif d.Remove then d:Remove() end end; table.clear(tbl) end
+function ClearAll() for _, t in pairs(Highlights) do ClearHighlights(t) end; for _, t in pairs(Drawings) do ClearDrawings(t) end end
 
-local function ClearDrawings(tbl) 
-    for _, d in pairs(tbl) do 
-        if type(d) == "table" then 
-            for _, v in pairs(d) do 
-                if v.Remove then v:Remove() end 
-            end
-        elseif d.Remove then 
-            d:Remove() 
-        end 
-    end
-    table.clear(tbl) 
-end
-
-local function ClearAll() 
-    for _, t in pairs(Highlights) do ClearHighlights(t) end
-    for _, t in pairs(Drawings) do ClearDrawings(t) end
-end
-
-local function CreateHighlight(target, fillColor, outlineColor)
+function CreateHighlight(target, fillColor, outlineColor)
     local hl = Instance.new("Highlight")
-    hl.Adornee = target
-    hl.FillColor = fillColor
-    hl.OutlineColor = outlineColor or fillColor
-    hl.FillTransparency = 0.5
-    hl.OutlineTransparency = 0
-    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    hl.Parent = workspace
-    return hl
+    hl.Adornee = target; hl.FillColor = fillColor; hl.OutlineColor = outlineColor or fillColor
+    hl.FillTransparency = 0.5; hl.OutlineTransparency = 0; hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    hl.Parent = workspace; return hl
 end
-
-local function CreateText()
+function CreateText()
     local t = Drawing.new("Text")
-    t.Center = true
-    t.Outline = true
-    t.OutlineColor = Color3.fromRGB(0, 0, 0)
-    t.Visible = false
+    t.Center = true; t.Outline = true; t.OutlineColor = Color3.fromRGB(0, 0, 0); t.Visible = false
     return t
 end
