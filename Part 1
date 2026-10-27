@@ -7,9 +7,9 @@ local VIM = game:GetService("VirtualInputManager")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
 
-local LocalPlayer = Players.LocalPlayer
-
-local OriginalLighting = {
+-- VARIABLES GLOBALES (Para que funcionen entre partes)
+LocalPlayer = Players.LocalPlayer
+OriginalLighting = {
     Ambient = Lighting.Ambient,
     OutdoorAmbient = Lighting.OutdoorAmbient,
     Brightness = Lighting.Brightness,
@@ -17,7 +17,7 @@ local OriginalLighting = {
     FogEnd = Lighting.FogEnd
 }
 
-local Toggles = {
+Toggles = {
     EspPlayers = false, Nametag = false, EspTrinkets = false, EspItems = false,
     EspDescription = false, EspTwisteds = false, EspNametagResearch = false,
     EspDoors = false, EspGenerators = false, FullBright = false, AltFullBright = false,
@@ -25,26 +25,26 @@ local Toggles = {
     AutoFarm = false, Noclip = false, Speed = false
 }
 
-local WalkSpeed_Value = 30
-local DangerDistance = 25
-local PickupDistance = 15
+WalkSpeed_Value = 30
+DangerDistance = 25
+PickupDistance = 15
+Highlights = { Players = {}, Trinkets = {}, Items = {}, Twisteds = {}, Doors = {}, Generators = {} }
+Drawings = { Players = {}, Trinkets = {}, Items = {}, Twisteds = {}, Doors = {}, Generators = {} }
+LastRoom = nil
+lastAutoTp = 0
+barClicked = false
+circleClicked = false
+treadmillActive = false
 
-local Highlights = { Players = {}, Trinkets = {}, Items = {}, Twisteds = {}, Doors = {}, Generators = {} }
-local Drawings = { Players = {}, Trinkets = {}, Items = {}, Twisteds = {}, Doors = {}, Generators = {} }
-local LastRoom = nil
-local lastAutoTp = 0
-local barClicked = false
-local circleClicked = false
-local treadmillActive = false
-
-local function GetFluidRainbow() return Color3.fromHSV(tick() % 1, 1, 1) end
-local function GetDarkRainbow() return Color3.fromHSV(tick() % 1, 1, 0.6) end
-local function GetAlternatingColor(c1, c2)
+-- FUNCIONES GLOBALES
+function GetFluidRainbow() return Color3.fromHSV(tick() % 1, 1, 1) end
+function GetDarkRainbow() return Color3.fromHSV(tick() % 1, 1, 0.6) end
+function GetAlternatingColor(c1, c2)
     local alpha = (math.sin(tick() * 4) + 1) / 2
     return c1:Lerp(c2, alpha)
 end
 
-local ItemColors = {
+ItemColors = {
     ["stopwatch"] = Color3.fromRGB(255, 165, 0), ["skill check candy"] = Color3.fromRGB(255, 165, 0),
     ["instructions"] = Color3.fromRGB(128, 0, 128), ["extraction speed candy"] = Color3.fromRGB(128, 0, 128),
     ["jumper cable"] = Color3.fromRGB(128, 0, 128), ["valve"] = Color3.fromRGB(128, 0, 128),
@@ -62,14 +62,14 @@ local ItemColors = {
     ["dandy corn"] = function() return GetAlternatingColor(Color3.fromRGB(255, 255, 0), Color3.fromRGB(128, 128, 128)) end
 }
 
-local function FormatName(name)
+function FormatName(name)
     local formatted = string.gsub(name, "Monster", "")
     formatted = string.gsub(formatted, "(%u)", " %1")
     formatted = string.gsub(formatted, "^%s*(.-)%s*$", "%1")
     return formatted
 end
 
-local function GetItemColor(name)
+function GetItemColor(name)
     local lowerName = string.lower(name)
     if string.find(lowerName, "bandage") or string.find(lowerName, "health") or string.find(lowerName, "ornament") or string.find(lowerName, "basket") or string.find(lowerName, "pumpkin") then
         return GetFluidRainbow()
@@ -82,7 +82,7 @@ local function GetItemColor(name)
     return Color3.fromRGB(255, 255, 255)
 end
 
-local function GetTwistedColors(name)
+function GetTwistedColors(name)
     local lowerName = string.lower(name)
     local fill = Color3.fromRGB(255, 0, 0)
     local outline = Color3.fromRGB(255, 0, 0)
@@ -97,7 +97,7 @@ local function GetTwistedColors(name)
     return fill, outline
 end
 
-local function GetGeneratorColor(gen)
+function GetGeneratorColor(gen)
     local stats = gen:FindFirstChild("Stats")
     local hasBrusha = gen:FindFirstChild("BrushaDebuffChamber", true) ~= nil
     local connieObj = stats and stats:FindFirstChild("Connie")
@@ -111,7 +111,7 @@ local function GetGeneratorColor(gen)
     return cGray
 end
 
-local function GetClosest(targetFolderName, ignoreCompleted, findFurthest)
+function GetClosest(targetFolderName, ignoreCompleted, findFurthest)
     local closest = nil
     local bestDist = findFurthest and -1 or math.huge
     local char = LocalPlayer.Character
@@ -137,7 +137,7 @@ local function GetClosest(targetFolderName, ignoreCompleted, findFurthest)
     return closest
 end
 
-local function TPToObject(part)
+function TPToObject(part)
     pcall(function()
         if part and part.Parent and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = LocalPlayer.Character.HumanoidRootPart
@@ -148,7 +148,7 @@ local function TPToObject(part)
     end)
 end
 
-local function InteractWithObject(part)
+function InteractWithObject(part)
     pcall(function()
         if not part or not part.Parent then return end
         local prompt = part:FindFirstChildWhichIsA("ProximityPrompt", true)
